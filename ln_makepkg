@@ -60,6 +60,9 @@ if not os.path.exists('debian/source'):
 #Create the source/format file
 render_write(template_env, 'sourceformat', 'debian/source/format', project_vars)
 
+#create the changelog file
+render_write(template_env, 'changelog', 'debian/changelog', project_vars)
+
 #Create the control file
 render_write(template_env, 'control', 'debian/control', project_vars)
 
@@ -72,5 +75,13 @@ render_write(template_env, 'copyright', 'debian/copyright', project_vars)
 #create the rules file
 render_write(template_env, 'rules', 'debian/rules', project_vars)
 
-#create the changelog file
-render_write(template_env, 'changelog', 'debian/changelog', project_vars)
+#create the classpath file
+render_write(template_env, 'package.classpath', 'debian/' + \
+                project_vars['package_name']+'.classpath', project_vars)
+
+#create the document files
+render_write(template_env, 'package.doc-base', 'debian/' + \
+                project_vars['package_name']+'.doc-base', project_vars)
+
+render_write(template_env, 'package.docs', 'debian/' + \
+                project_vars['package_name']+'.docs', project_vars)
