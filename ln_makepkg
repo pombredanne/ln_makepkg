@@ -1,0 +1,74 @@
+#!/usr/bin/python
+
+from jinja2 import Environment, FileSystemLoader
+from leinpkg import Project
+import subprocess
+from subprocess import call
+import os
+
+#A function that loads a template, renders with context, writes to file
+def render_write(env, template_name, filename, context):
+    template = env.get_template(template_name)
+    f = open(filename, 'w')
+    f.write(template.render(context))
+    f.close()
+
+#Create a jinja environment to load the templates
+template_env = Environment(loader=FileSystemLoader('./templates'),\
+                           trim_blocks=True)
+
+#This dictionary will hold all project variables used in templates
+project_vars = dict()
+
+#Generate a pom file of the project in order to read the project attributes
+if not os.path.exists('pom.xml'):
+    call(['lein', 'pom'])
+
+#Create a Project instance
+project = Project('pom.xml')
+
+#Load maintainer name and email from env variables
+if 'DEBFULLNAME' in os.environ:
+    project_vars['maintainer_name'] = os.environ['DEBFULLNAME']
+if 'DEBEMAIL' in os.environ:
+    project_vars['maintainer_email'] = os.environ['DEBEMAIL']
+
+#Load date
+project_vars['date'] = subprocess.check_output(["date", "-R"])
+
+#Fill in some dummy project variables
+project_vars['source_name'] = project.name
+project_vars['homepage'] = project.url
+#project_vars['vcsgit'] = 'git://github.com/technomancy/leiningen.git'
+project_vars['package_name'] = 'lib'+project.name+'-clojure'
+project_vars['genfiles'] = [project_vars['source_name']+'.jar']
+project_vars['version'] = project.version
+project_vars['dependencies'] = project.dependencies
+project_vars['fullpath_deps'] = map(lambda x: "/usr/share/java/"+x+".jar", \
+                                                project.dependencies)
+
+#Create the debian folder
+if not os.path.exists('debian'):
+    os.makedirs('debian')
+
+#Create the debian/source folder
+if not os.path.exists('debian/source'):
+    os.makedirs('debian/source')
+
+#Create the source/format file
+render_write(template_env, 'sourceformat', 'debian/source/format', project_vars)
+
+#Create the control file
+render_write(template_env, 'control', 'debian/control', project_vars)
+
+#create the compat file
+render_write(template_env, 'compat', 'debian/compat', project_vars)
+
+#create the copyright file
+render_write(template_env, 'copyright', 'debian/copyright', project_vars)
+
+#create the rules file
+render_write(template_env, 'rules', 'debian/rules', project_vars)
+
+#create the changelog file
+render_write(template_env, 'changelog', 'debian/changelog', project_vars)

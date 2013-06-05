@@ -1,0 +1,26 @@
+#!/usr/bin/make -f
+
+include /usr/share/javahelper/java-vars.mk
+export JAVA_HOME=/usr/lib/jvm/default-java
+export CLASSPATH={{ fullpath_deps|join(':') }}
+
+MDWN_DOCS = $(patsubst %.md,%.html,$(wildcard $(CURDIR)/*.md))
+PRODUCED_JAR={{ genfiles[0] }}
+
+%:
+	dh $@ --with javahelper
+
+override_jh_build: $(MDWN_DOCS)
+	jar cf $(PRODUCED_JAR) -C src .
+	mkdir -p $(CURDIR)/doc/html && mv $(CURDIR)/*.html $(CURDIR)/doc/html
+
+override_jh_clean:
+	jh_clean
+	rm -f $(CURDIR)/$(PRODUCED_JAR)
+	rm -rf $(CURDIR)/doc
+
+%.html:%.md
+	cat debian/header.html > $@
+	sed -i'' -e 's/@TITLE@/$(shell head -n 1 $< | sed 's/^#*\s*//')/g' $@
+	markdown $< >> $@
+	cat debian/footer.html >> $@
