@@ -20,12 +20,18 @@ template_env = Environment(loader=FileSystemLoader('./templates'),\
 #This dictionary will hold all project variables used in templates
 project_vars = dict()
 
+#Create the debian folder
+if not os.path.exists('debian'):
+    os.makedirs('debian')
+
 #Generate a pom file of the project in order to read the project attributes
 if not os.path.exists('pom.xml'):
     call(['lein', 'pom'])
 
+os.rename('pom.xml','debian/pom.xml')
+
 #Create a Project instance
-project = Project('pom.xml')
+project = Project('debian/pom.xml')
 
 #Load maintainer name and email from env variables
 if 'DEBFULLNAME' in os.environ:
@@ -46,10 +52,6 @@ project_vars['version'] = project.version
 project_vars['dependencies'] = project.dependencies
 project_vars['fullpath_deps'] = map(lambda x: "/usr/share/java/"+x+".jar", \
                                                 project.dependencies)
-
-#Create the debian folder
-if not os.path.exists('debian'):
-    os.makedirs('debian')
 
 #Create the debian/source folder
 if not os.path.exists('debian/source'):
