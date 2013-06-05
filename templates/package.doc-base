@@ -1,13 +1,13 @@
-Document: scout
-Title: Introduction to scout
-Author: David Santiago
-Abstract: An introduction to scout
+Document: {{ source_name }}
+Title: {{ source_name }}
+Author: {{ author_name }}
+Abstract: {{ source_name }} readme
 Section: Programming
 
 Format: HTML
-Index: /usr/share/doc/libscout-clojure/html/README.html
-Files: /usr/share/doc/libscout-clojure/html/README.html
+Index: /usr/share/doc/{{ package_name }}/html/README.html
+Files: /usr/share/doc/{{ package_name }}/html/README.html
 
 Format: Text
-Index: /usr/share/doc/libscout-clojure/README.md
-Files: /usr/share/doc/libscout-clojure/README.md
+Index: /usr/share/doc/{{ package_name }}/README.md
+Files: /usr/share/doc/{{ package_name }}/README.md

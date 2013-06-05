@@ -1,1 +1,1 @@
-usr/share/java/scout.jar /usr/share/java/clojure.jar
+{{ package_name }} {{ fullpath_deps|join(':') }}
