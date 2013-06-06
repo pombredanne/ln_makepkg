@@ -1,1 +1,1 @@
-{{ package_name }} {{ fullpath_deps|join(':') }}
+{{ genfiles[0] }} {{ fullpath_deps|join(' ') }}
