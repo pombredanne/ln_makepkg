@@ -43,10 +43,10 @@ if 'DEBEMAIL' in os.environ:
 project_vars['date'] = subprocess.check_output(["date", "-R"])
 
 #Fill in some dummy project variables
-project_vars['source_name'] = project.name
+project_vars['source_name'] = project.name.replace('.','-')
 project_vars['homepage'] = project.url
 #project_vars['vcsgit'] = 'git://github.com/technomancy/leiningen.git'
-project_vars['package_name'] = 'lib'+project.name+'-clojure'
+project_vars['package_name'] = 'lib'+project_vars['source_name']+'-clojure'
 project_vars['genfiles'] = [project_vars['source_name']+'.jar']
 project_vars['version'] = project.version
 project_vars['dependencies'] = project.dependencies
