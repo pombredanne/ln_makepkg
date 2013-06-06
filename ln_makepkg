@@ -10,6 +10,7 @@ jinja templates.
 from jinja2 import Environment, FileSystemLoader
 from leinpkg import Project
 import subprocess
+import argparse
 from subprocess import call
 import os
 
@@ -25,12 +26,35 @@ def _render_write(env, template_name, filename, context):
     f.write(template.render(context))
     f.close()
 
+#Setup argument parsing
+argparser = argparse.ArgumentParser()
+
+argparser.add_argument('-p', '--package', help=('Set the package name '
+                       '(defaults to Leiningen project name)'))
+
+argparser.add_argument('-m', '--maintainer', help=('Set the maintainer name '
+                       '(defaults to DEBFULLNAME)'))
+
+argparser.add_argument('-e', '--email', help=('Set the maintainer email '
+                       '(defaults to DEBEMAIL)'))
+
+argparser.add_argument('-v', '--version', help=('Set the package version '
+                       '(defaults to Leiningen project version)'))
+
 #Create a jinja environment to load the templates
 template_env = Environment(loader=FileSystemLoader('./templates'),
                            trim_blocks=True)
 
 #This dictionary will hold all project variables used in templates
-project_vars = dict()
+project = dict()
+
+#Load arguments
+args = vars(argparser.parse_args())
+
+project['package_name'] = args['package']
+project['maintainer_name'] = args['maintainer']
+project['maintainer_email'] = args['email']
+project['version'] = args['version']
 
 #Create the debian folder
 if not os.path.exists('debian'):
@@ -43,59 +67,64 @@ if not os.path.exists('pom.xml'):
 os.rename('pom.xml', 'debian/pom.xml')
 
 #Create a Project instance
-project = Project('debian/pom.xml')
+config = Project('debian/pom.xml')
 
-#Load maintainer name and email from env variables
-if 'DEBFULLNAME' in os.environ:
-    project_vars['maintainer_name'] = os.environ['DEBFULLNAME']
-if 'DEBEMAIL' in os.environ:
-    project_vars['maintainer_email'] = os.environ['DEBEMAIL']
+
+if not project['maintainer_name']:
+    project['maintainer_name'] = os.environ.get('DEBFULLNAME', '')
+if not project['maintainer_email']:
+    project['maintainer_email'] = os.environ.get('DEBEMAIL', '')
 
 #Load date
-project_vars['date'] = subprocess.check_output(["date", "-R"])
+project['date'] = subprocess.check_output(["date", "-R"])
 
 #Fill in some dummy project variables
-project_vars['source_name'] = project.name.replace('.', '-')
-project_vars['homepage'] = project.url
-project_vars['package_name'] = 'lib' + project_vars['source_name'] + '-clojure'
-project_vars['genfiles'] = [project_vars['source_name'] + '.jar']
-project_vars['version'] = project.version
-project_vars['dependencies'] = project.dependencies
-project_vars['fullpath_deps'] = map(lambda x: "/usr/share/java/"+x+".jar",
-                                    project.dependencies)
+project['source_name'] = config.name.replace('.', '-')
+if not project['package_name']:
+    project['package_name'] = 'lib%s-clojure' % project['source_name']
+if not project['version']:
+    project['version'] = config.version
+project['dependencies'] = config.dependencies
+project['genfiles'] = [project['source_name'] + '.jar']
+project['homepage'] = config.url
+project['fullpath_deps'] = map(lambda x: '/usr/share/java/'+x+'.jar',
+                               config.dependencies)
 
 #Create the debian/source folder
 if not os.path.exists('debian/source'):
     os.makedirs('debian/source')
 
 #create the changelog file
-call('dch --create --package %s --newversion %s Initial Release' %
-    (project_vars['package_name'], project_vars['version'] + '-1'),
+maintainer_env = 'DEBFULLNAME="' + project['maintainer_name'] + '" '
+maintainer_env += 'DEBEMAIL="' + project['maintainer_email'] + '"'
+
+call('%s dch --create --package %s --newversion %s Initial Release' %
+    (maintainer_env, project['package_name'], project['version'] + '-1'),
      shell=True)
 
 #Create the source/format file
 _render_write(template_env, 'sourceformat', 'debian/source/format',
-              project_vars)
+              project)
 
 #Create the control file
-_render_write(template_env, 'control', 'debian/control', project_vars)
+_render_write(template_env, 'control', 'debian/control', project)
 
 #create the compat file
-_render_write(template_env, 'compat', 'debian/compat', project_vars)
+_render_write(template_env, 'compat', 'debian/compat', project)
 
 #create the copyright file
-_render_write(template_env, 'copyright', 'debian/copyright', project_vars)
+_render_write(template_env, 'copyright', 'debian/copyright', project)
 
 #create the rules file
-_render_write(template_env, 'rules', 'debian/rules', project_vars)
+_render_write(template_env, 'rules', 'debian/rules', project)
 
 #create the classpath file
 _render_write(template_env, 'package.classpath', 'debian/' +
-              project_vars['package_name']+'.classpath', project_vars)
+              project['package_name']+'.classpath', project)
 
 #create the document files
 _render_write(template_env, 'package.doc-base', 'debian/' +
-              project_vars['package_name']+'.doc-base', project_vars)
+              project['package_name']+'.doc-base', project)
 
 _render_write(template_env, 'package.docs', 'debian/' +
-              project_vars['package_name']+'.docs', project_vars)
+              project['package_name']+'.docs', project)
