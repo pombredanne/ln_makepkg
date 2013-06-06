@@ -57,11 +57,13 @@ project_vars['fullpath_deps'] = map(lambda x: "/usr/share/java/"+x+".jar", \
 if not os.path.exists('debian/source'):
     os.makedirs('debian/source')
 
+#create the changelog file
+call('dch --create --package %s --newversion %s Initial Release' % 
+        (project_vars['package_name'], project_vars['version'] + '-1'), 
+            shell=True)
+
 #Create the source/format file
 render_write(template_env, 'sourceformat', 'debian/source/format', project_vars)
-
-#create the changelog file
-render_write(template_env, 'changelog', 'debian/changelog', project_vars)
 
 #Create the control file
 render_write(template_env, 'control', 'debian/control', project_vars)
