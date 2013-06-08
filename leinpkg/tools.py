@@ -5,6 +5,8 @@ can later be accessed through the Project class members
 """
 
 import lxml.etree as et
+import os
+from jinja2 import Environment, FileSystemLoader
 
 
 class Project:
@@ -41,3 +43,25 @@ class Project:
         url = tree.xpath(homepage_path, namespaces=ns)
         if url:
             self.url = url[0]
+
+
+class DebianTemplates:
+
+    env = ""
+
+    def __init__(self):
+        TEMPLATES_ROOT = os.path.abspath(os.path.dirname(__file__))
+        TEMPLATES_ROOT = os.path.join(TEMPLATES_ROOT,'templates')
+        self.env = Environment(loader=FileSystemLoader(TEMPLATES_ROOT),
+                               trim_blocks=True)
+
+    def render_write(self, template_name, filename, context):
+        """
+        Loads a template from a jinja environment, renders the template
+        with a context and writes the output to a file
+        """
+
+        template = self.env.get_template(template_name)
+        f = open(filename, 'w')
+        f.write(template.render(context))
+        f.close()

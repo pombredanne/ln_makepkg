@@ -7,24 +7,12 @@ Leiningen configuration file and populates the debian folder using
 jinja templates.
 """
 
-from jinja2 import Environment, FileSystemLoader
-from leinpkg import Project
+from leinpkg.tools import Project, DebianTemplates
 import subprocess
 import argparse
 from subprocess import call
 import os
 
-
-def _render_write(env, template_name, filename, context):
-    """
-    Loads a template from a jinja environment, renders the template with a
-    context and writes the output to a file
-    """
-
-    template = env.get_template(template_name)
-    f = open(filename, 'w')
-    f.write(template.render(context))
-    f.close()
 
 #Setup argument parsing
 argparser = argparse.ArgumentParser()
@@ -41,9 +29,8 @@ argparser.add_argument('-e', '--email', help=('Set the maintainer email '
 argparser.add_argument('-v', '--version', help=('Set the package version '
                        '(defaults to Leiningen project version)'))
 
-#Create a jinja environment to load the templates
-template_env = Environment(loader=FileSystemLoader('./templates'),
-                           trim_blocks=True)
+#Create an instance of DebianTemplates which will help us deal with templates
+deb_templates = DebianTemplates()
 
 #This dictionary will hold all project variables used in templates
 project = dict()
@@ -103,28 +90,27 @@ call('%s dch --create --package %s --newversion %s Initial Release' %
      shell=True)
 
 #Create the source/format file
-_render_write(template_env, 'sourceformat', 'debian/source/format',
-              project)
+deb_templates.render_write('sourceformat', 'debian/source/format', project)
 
 #Create the control file
-_render_write(template_env, 'control', 'debian/control', project)
+deb_templates.render_write('control', 'debian/control', project)
 
 #create the compat file
-_render_write(template_env, 'compat', 'debian/compat', project)
+deb_templates.render_write('compat', 'debian/compat', project)
 
 #create the copyright file
-_render_write(template_env, 'copyright', 'debian/copyright', project)
+deb_templates.render_write('copyright', 'debian/copyright', project)
 
 #create the rules file
-_render_write(template_env, 'rules', 'debian/rules', project)
+deb_templates.render_write('rules', 'debian/rules', project)
 
 #create the classpath file
-_render_write(template_env, 'package.classpath', 'debian/' +
-              project['package_name']+'.classpath', project)
+deb_templates.render_write('package.classpath', 'debian/' +
+                           project['package_name']+'.classpath', project)
 
 #create the document files
-_render_write(template_env, 'package.doc-base', 'debian/' +
-              project['package_name']+'.doc-base', project)
+deb_templates.render_write('package.doc-base', 'debian/' +
+                           project['package_name']+'.doc-base', project)
 
-_render_write(template_env, 'package.docs', 'debian/' +
-              project['package_name']+'.docs', project)
+deb_templates.render_write('package.docs', 'debian/' +
+                           project['package_name']+'.docs', project)
