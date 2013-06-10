@@ -1,10 +1,12 @@
 from leinpkg.tools import Project
-import os
-from subprocess import call
+
+
+project = None
 
 
 def setup_module():
-    p = Project('tests/resources/pom.xml')
+    project = Project('tests/resources/pom.xml')
+
 
 def test_control_version():
     assert True
