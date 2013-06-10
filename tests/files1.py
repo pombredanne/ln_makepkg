@@ -1,6 +1,7 @@
 from subprocess import call
 import os
 import shutil
+import re
 
 
 #Define what pom file belongs to this test.
@@ -8,6 +9,8 @@ pom_file = 'pom1.xml'
 
 test_dir = os.path.abspath(os.path.dirname(__file__))
 temp_dir = test_dir + '/temp'
+
+control_file = None
 
 
 def setup_module():
@@ -24,9 +27,13 @@ def setup_module():
 
     call('python ' + test_dir + '/../ln_makepkg', shell=True)
 
+    global control_file
+    control_file = open(temp_dir + '/debian/control').read()
+
 def teardown_module():
     os.chdir(test_dir)
-    shutil.rmtree(test_dir)
+    shutil.rmtree(temp_dir)
 
-def test_control_version():
-    assert True
+def test_control_source():
+    source = re.match('Source: ([a-zA-Z0-9.-/]+)', control_file).group(1)
+    assert source == 'quoin-clojure'
