@@ -8,7 +8,6 @@ jinja templates.
 """
 
 from leinpkg.tools import Project, DebianTemplates
-import subprocess
 import argparse
 from subprocess import call
 import os
@@ -61,9 +60,6 @@ if not project['maintainer_name']:
     project['maintainer_name'] = os.environ.get('DEBFULLNAME', '')
 if not project['maintainer_email']:
     project['maintainer_email'] = os.environ.get('DEBEMAIL', '')
-
-#Load date
-project['date'] = subprocess.check_output(["date", "-R"])
 
 #Fill in some dummy project variables
 project['source_name'] = config.name.replace('.', '-') + '-clojure'
