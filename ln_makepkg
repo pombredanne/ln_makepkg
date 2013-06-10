@@ -66,9 +66,9 @@ if not project['maintainer_email']:
 project['date'] = subprocess.check_output(["date", "-R"])
 
 #Fill in some dummy project variables
-project['source_name'] = config.name.replace('.', '-')
+project['source_name'] = config.name.replace('.', '-') + '-clojure'
 if not project['package_name']:
-    project['package_name'] = 'lib%s-clojure' % project['source_name']
+    project['package_name'] = 'lib' + project['source_name']
 if not project['version']:
     project['version'] = config.version
 project['dependencies'] = config.dependencies
