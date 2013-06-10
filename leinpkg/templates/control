@@ -9,7 +9,7 @@ Build-Depends:
  javahelper (>= 0.43),
  clojure1.4,
  libtext-markdown-perl | markdown
-Standards-Version: 3.9.3
+Standards-Version: 3.9.4
 Homepage: {{ homepage }}
 Vcs-Git: git://git.debian.org/pkg-clojure/{{ source_name }}.git
 Vcs-Browser: http://git.debian.org/?p=pkg-clojure/{{ source_name }}.git
