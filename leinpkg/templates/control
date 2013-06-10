@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: {{ maintainer_name }} <{{ maintainer_email }}>
 Build-Depends:
  clojurehelper,
- debhelper (>= 8),
+ debhelper (>= 9),
  default-jdk,
  javahelper (>= 0.43),
  clojure1.4,
