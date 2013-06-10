@@ -35,5 +35,6 @@ def teardown_module():
     shutil.rmtree(temp_dir)
 
 def test_control_source():
-    source = re.match('Source: ([a-zA-Z0-9.-/]+)', control_file).group(1)
+    source = re.match('Source: ([-a-zA-Z0-9./]+)', control_file).group(1)
+    print control_file
     assert source == 'quoin-clojure'
