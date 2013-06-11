@@ -82,7 +82,7 @@ maintainer_env = 'DEBFULLNAME="' + project['maintainer_name'] + '" '
 maintainer_env += 'DEBEMAIL="' + project['maintainer_email'] + '"'
 
 call('%s dch --create --package %s --newversion %s Initial Release' %
-    (maintainer_env, project['package_name'], project['version'] + '-1'),
+    (maintainer_env, project['source_name'], project['version'] + '-1'),
      shell=True)
 
 #Create the source/format file
