@@ -6,7 +6,7 @@ setup(
     scripts=['ln_makepkg'],
     packages=['leinpkg'],
     platforms=['any'],
-    description='Make debian packages from Leiningen project',
+    description='Make debian packages from Leiningen projects',
     author="Eugenio Cano-Manuel Mendoza",
     author_email="eugeniocanom@gmail.com",
     url="https://github.com/keidesu/ln_makepkg",
