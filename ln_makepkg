@@ -2,7 +2,7 @@
 
 """
 This script creates template Debian packages for programs and libraries
-built with Leiningen. It makes use of leinpkh.Project to parse the
+built with Leiningen. It makes use of leinpkg.Project to parse the
 Leiningen configuration file and populates the debian folder using
 jinja templates.
 """
