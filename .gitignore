@@ -3,6 +3,9 @@
 # C extensions
 *.so
 
+#No clojure files in root folder
+.clj
+
 # Packages
 *.egg
 *.egg-info
