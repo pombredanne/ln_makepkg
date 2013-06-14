@@ -59,7 +59,7 @@ class TestTemplates():
 
     def test_control_package(self):
         package = re.search('Package: ([-a-zA-Z0-9./]+)',
-                           self.control_file).group(1)
+                            self.control_file).group(1)
         print 'Found:', package, 'Expected:', self._expected_package_name
         assert package == self._expected_package_name
 
