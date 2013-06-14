@@ -22,6 +22,7 @@ class TestTemplates():
     _commandline_args = ''
     _expected_source_name = ''
     _expected_package_name = ''
+    _expected_itp_bug = ''
 
     @classmethod
     def setup_class(cls):
@@ -52,7 +53,7 @@ class TestTemplates():
         shutil.rmtree(cls.temp_dir)
 
     def test_control_source(self):
-        source = re.match('Source: ([-a-zA-Z0-9./]+)',
+        source = re.search('Source: ([-a-zA-Z0-9./]+)',
                           self.control_file).group(1)
         print 'Found:', source, 'Expected:', self._expected_source_name
         assert source == self._expected_source_name
@@ -64,13 +65,21 @@ class TestTemplates():
         assert package == self._expected_package_name
 
     def test_changelog_source(self):
-        source = re.match(r'\A([-a-zA-Z0-9./]+)',
+        source = re.search(r'\A([-a-zA-Z0-9./]+)',
                           self.changelog_file).group(1)
         print 'Found:', source, 'Expected:', self._expected_source_name
         assert source == self._expected_source_name
 
     def test_changelog_version(self):
-        version = re.match(r'\A[-a-zA-Z0-9./]+ \(([-0-9.]+)\)',
+        version = re.search(r'\A[-a-zA-Z0-9./]+ \(([-0-9.]+)\)',
                            self.changelog_file).group(1)
         print 'Found:', version, 'Expected:', self._expected_version
         assert version == self._expected_version
+
+    def test_changelog_itp(self):
+        if not self._expected_itp_bug:
+            return True
+        itp = re.search(r'\(Closes: #([0-9]+)\)',
+                           self.changelog_file).group(1)
+        print 'Found:', itp, 'Expected:', self._expected_itp_bug
+        assert itp == self._expected_itp_bug
