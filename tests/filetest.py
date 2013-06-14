@@ -19,6 +19,7 @@ class TestTemplates():
     changelog_file = None
 
     _pom_file = None
+    _commandline_args = None
     _expected_source_name = None
     _expected_package_name = None
 
@@ -39,7 +40,8 @@ class TestTemplates():
 
         os.chdir(cls.temp_dir)
 
-        call('python ' + cls.test_dir + '/../ln_makepkg', shell=True)
+        call('python ' + cls.test_dir + '/../ln_makepkg' +
+             ' ' + cls._commandline_args, shell=True)
 
         cls.control_file = open(cls.temp_dir + '/debian/control').read()
         cls.changelog_file = open(cls.temp_dir + '/debian/changelog').read()
