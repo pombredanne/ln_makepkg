@@ -18,10 +18,10 @@ class TestTemplates():
     control_file = None
     changelog_file = None
 
-    _pom_file = None
-    _commandline_args = None
-    _expected_source_name = None
-    _expected_package_name = None
+    _pom_file = ''
+    _commandline_args = ''
+    _expected_source_name = ''
+    _expected_package_name = ''
 
     @classmethod
     def setup_class(cls):
