@@ -28,6 +28,9 @@ argparser.add_argument('-e', '--email', help=('Set the maintainer email '
 argparser.add_argument('-v', '--version', help=('Set the package version '
                        '(defaults to Leiningen project version)'))
 
+argparser.add_argument('-i', '--itp', help=('Set the itp bug number that this '
+                       'package should close'))
+
 #Create an instance of DebianTemplates which will help us deal with templates
 deb_templates = DebianTemplates()
 
@@ -41,6 +44,7 @@ project['package_name'] = args['package']
 project['maintainer_name'] = args['maintainer']
 project['maintainer_email'] = args['email']
 project['version'] = args['version']
+project['itp_bug'] = args['itp']
 
 #Create the debian folder
 if not os.path.exists('debian'):
@@ -61,6 +65,9 @@ if not project['maintainer_name']:
 if not project['maintainer_email']:
     project['maintainer_email'] = os.environ.get('DEBEMAIL', '')
 
+if not project['itp_bug']:
+    project['itp_bug'] = 'XXXXXX'
+
 #Fill in some dummy project variables
 project['source_name'] = config.name.replace('.', '-') + '-clojure'
 if not project['package_name']:
@@ -80,10 +87,11 @@ if not os.path.exists('debian/source'):
 #create the changelog file
 maintainer_env = 'DEBFULLNAME="' + project['maintainer_name'] + '" '
 maintainer_env += 'DEBEMAIL="' + project['maintainer_email'] + '"'
+changelog_message = r'Initial Release. \(Closes: \#%s\)' % project['itp_bug']
 
-call('%s dch --create --package %s --newversion %s Initial Release' %
-    (maintainer_env, project['source_name'], project['version'] + '-1'),
-     shell=True)
+call('%s dch --create --package %s --newversion %s %s' %
+    (maintainer_env, project['source_name'], project['version'] + '-1',
+     changelog_message), shell=True)
 
 #Create the source/format file
 deb_templates.render_write('sourceformat', 'debian/source/format', project)
