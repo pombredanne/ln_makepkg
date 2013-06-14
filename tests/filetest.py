@@ -53,33 +53,34 @@ class TestTemplates():
         shutil.rmtree(cls.temp_dir)
 
     def test_control_source(self):
-        source = re.search('Source: ([-a-zA-Z0-9./]+)',
-                          self.control_file).group(1)
-        print 'Found:', source, 'Expected:', self._expected_source_name
-        assert source == self._expected_source_name
+        self._search_compare(self.control_file, 'Source: ([-a-zA-Z0-9./]+)',
+                        self._expected_source_name)
 
     def test_control_package(self):
-        package = re.search('Package: ([-a-zA-Z0-9./]+)',
-                            self.control_file).group(1)
-        print 'Found:', package, 'Expected:', self._expected_package_name
-        assert package == self._expected_package_name
+        self._search_compare(self.control_file, 'Package: ([-a-zA-Z0-9./]+)',
+                        self._expected_package_name)
 
     def test_changelog_source(self):
-        source = re.search(r'\A([-a-zA-Z0-9./]+)',
-                          self.changelog_file).group(1)
-        print 'Found:', source, 'Expected:', self._expected_source_name
-        assert source == self._expected_source_name
+        self._search_compare(self.changelog_file, r'\A([-a-zA-Z0-9./]+)',
+                        self._expected_source_name)
 
     def test_changelog_version(self):
-        version = re.search(r'\A[-a-zA-Z0-9./]+ \(([-0-9.]+)\)',
-                           self.changelog_file).group(1)
-        print 'Found:', version, 'Expected:', self._expected_version
-        assert version == self._expected_version
+        self._search_compare(self.changelog_file,
+                        r'\A[-a-zA-Z0-9./]+ \(([-0-9.]+)\)',
+                        self._expected_version)
 
     def test_changelog_itp(self):
         if not self._expected_itp_bug:
             return True
-        itp = re.search(r'\(Closes: #([0-9]+)\)',
-                           self.changelog_file).group(1)
-        print 'Found:', itp, 'Expected:', self._expected_itp_bug
-        assert itp == self._expected_itp_bug
+        self._search_compare(self.changelog_file, r'\(Closes: #([0-9]+)\)', 
+                       self._expected_itp_bug)
+
+    def _search_compare(self, file, regex, expected):
+        result = re.search(regex, file)
+        if expected and not result:
+            print 'Expected value was not found'
+            assert False
+        elif expected:
+            found = result.group(1)
+            print 'Found:', found, 'Expected:', expected
+            assert found == expected
