@@ -18,9 +18,11 @@ class TestTemplates():
     control_file = None
     changelog_file = None
 
-    _pom_file = None
-    _expected_source_name = None
-    _expected_package_name = None
+    _pom_file = ''
+    _commandline_args = ''
+    _expected_source_name = ''
+    _expected_package_name = ''
+    _expected_itp_bug = ''
 
     @classmethod
     def setup_class(cls):
@@ -39,7 +41,8 @@ class TestTemplates():
 
         os.chdir(cls.temp_dir)
 
-        call('python ' + cls.test_dir + '/../ln_makepkg', shell=True)
+        call('python ' + cls.test_dir + '/../ln_makepkg' +
+             ' ' + cls._commandline_args, shell=True)
 
         cls.control_file = open(cls.temp_dir + '/debian/control').read()
         cls.changelog_file = open(cls.temp_dir + '/debian/changelog').read()
@@ -50,25 +53,33 @@ class TestTemplates():
         shutil.rmtree(cls.temp_dir)
 
     def test_control_source(self):
-        source = re.match('Source: ([-a-zA-Z0-9./]+)',
+        source = re.search('Source: ([-a-zA-Z0-9./]+)',
                           self.control_file).group(1)
         print 'Found:', source, 'Expected:', self._expected_source_name
         assert source == self._expected_source_name
 
     def test_control_package(self):
         package = re.search('Package: ([-a-zA-Z0-9./]+)',
-                           self.control_file).group(1)
+                            self.control_file).group(1)
         print 'Found:', package, 'Expected:', self._expected_package_name
         assert package == self._expected_package_name
 
     def test_changelog_source(self):
-        source = re.match(r'\A([-a-zA-Z0-9./]+)',
+        source = re.search(r'\A([-a-zA-Z0-9./]+)',
                           self.changelog_file).group(1)
         print 'Found:', source, 'Expected:', self._expected_source_name
         assert source == self._expected_source_name
 
     def test_changelog_version(self):
-        version = re.match(r'\A[-a-zA-Z0-9./]+ \(([-0-9.]+)\)',
+        version = re.search(r'\A[-a-zA-Z0-9./]+ \(([-0-9.]+)\)',
                            self.changelog_file).group(1)
         print 'Found:', version, 'Expected:', self._expected_version
         assert version == self._expected_version
+
+    def test_changelog_itp(self):
+        if not self._expected_itp_bug:
+            return True
+        itp = re.search(r'\(Closes: #([0-9]+)\)',
+                           self.changelog_file).group(1)
+        print 'Found:', itp, 'Expected:', self._expected_itp_bug
+        assert itp == self._expected_itp_bug
