@@ -9,8 +9,9 @@ jinja templates.
 
 from leinpkg.tools import Project, DebianTemplates
 import argparse
-from subprocess import call
+from subprocess import call, Popen, PIPE
 import os
+import re
 
 
 #Setup argument parsing
@@ -30,6 +31,10 @@ argparser.add_argument('-v', '--version', help=('Set the package version '
 
 argparser.add_argument('-i', '--itp', help=('Set the itp bug number that this '
                        'package should close'))
+
+argparser.add_argument('--guess-itp', help=('Fetch the itp bug number from'
+                       ' wnpp (Requires wnpp-check)'), dest='guess_itp',
+                       action='store_true')
 
 #Create an instance of DebianTemplates which will help us deal with templates
 deb_templates = DebianTemplates()
@@ -79,6 +84,14 @@ project['genfiles'] = [config.name.replace('.', '-') + '.jar']
 project['homepage'] = config.url
 project['fullpath_deps'] = map(lambda x: '/usr/share/java/'+x+'.jar',
                                config.dependencies)
+
+#Check itp bug number from wnpp
+if args['guess_itp']:
+    wnpp = Popen(['wnpp-check', config.name.replace('.',, '-')],
+                 stdout=PIPE).communicate()[0]
+    result = re.search(r'\(ITP - #([0-9]+)\)', wnpp)
+    if result:
+        project['itp_bug'] = result.group(1)
 
 #Create the debian/source folder
 if not os.path.exists('debian/source'):
