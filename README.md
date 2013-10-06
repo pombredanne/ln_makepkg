@@ -1,4 +1,4 @@
-ln_makepkg
+MOVED
 ==========
 
-A prototype of the upcoming version of leiningen make package
+This project has moved. It is now hosted here [https://github.com/Debian/clojurehelper](https://github.com/Debian/clojurehelper)
